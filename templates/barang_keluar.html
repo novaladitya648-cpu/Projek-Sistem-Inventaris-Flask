@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Barang Keluar - Inventaris</title>
+
+    <link href="{{ url_for('static', filename='vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet">
+
+    <link href="{{ url_for('static', filename='css/sb-admin-2.min.css') }}" rel="stylesheet">
+</head>
+
+<body id="page-top">
+
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ url_for('home') }}">
+
+                <div class="sidebar-brand-icon">
+                    <i class="fas fa-boxes"></i>
+                </div>
+
+                <div class="sidebar-brand-text mx-3">
+                    Inventaris App
+                </div>
+
+            </a>
+
+            <hr class="sidebar-divider my-0">
+
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('home') }}">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('barang_masuk') }}">
+                    <i class="fas fa-fw fa-truck-loading"></i>
+                    <span>Barang Masuk</span>
+                </a>
+            </li>
+
+            <li class="nav-item active">
+                <a class="nav-link" href="{{ url_for('barang_keluar') }}">
+                    <i class="fas fa-fw fa-dolly"></i>
+                    <span>Barang Keluar</span>
+                </a>
+            </li>
+
+            <hr class="sidebar-divider">
+
+            <div class="sidebar-heading">
+                Interface
+            </div>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('tables') }}">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>Tables (Data Barang)</span>
+                </a>
+            </li>
+
+        </ul>
+        <!-- End Sidebar -->
+
+
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <div id="content">
+
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                    <h5 class="mb-0 text-gray-800">Sistem Manajemen Inventaris</h5>
+                </nav>
+
+
+                <div class="container-fluid">
+
+                    <h1 class="h3 mb-4 text-gray-800">
+                        Barang Keluar
+                    </h1>
+
+                    <!-- Flash Messages -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+
+                        {{ message }}
+
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+
+                    <!-- Form Barang Keluar -->
+                    <div class="card shadow mb-4">
+
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                Form Transaksi Barang Keluar
+                            </h6>
+                        </div>
+
+                        <div class="card-body">
+
+                            <form method="POST" action="{{ url_for('barang_keluar') }}">
+
+                                <div class="form-group">
+                                    <label for="kode">Pilih Barang</label>
+
+                                    <select class="form-control" id="kode" name="kode" required>
+
+                                        <option value="">-- Pilih Barang --</option>
+
+                                        {% for barang in data_barang %}
+                                        <option value="{{ barang.kode }}">
+                                            {{ barang.kode }} - {{ barang.nama }}
+                                            (Stok: {{ barang.stok }} {{ barang.satuan }})
+                                        </option>
+                                        {% endfor %}
+
+                                    </select>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="jumlah">Jumlah Barang Keluar</label>
+
+                                    <input type="number" class="form-control" id="jumlah" name="jumlah" min="1" step="1"
+                                        placeholder="Masukkan jumlah barang" required>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="keterangan">Keterangan</label>
+
+                                    <input type="text" class="form-control" id="keterangan" name="keterangan"
+                                        placeholder="Contoh: Barang dikirim ke pelanggan">
+                                </div>
+
+
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-minus-circle"></i>
+                                    Catat Barang Keluar
+                                </button>
+
+                                <a href="{{ url_for('home') }}" class="btn btn-secondary">
+                                    Kembali ke Dashboard
+                                </a>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Ringkasan Barang Keluar -->
+                    <div class="card shadow mb-4">
+
+                        <div class="card-body">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Total Barang Keluar Bulan Ini
+                            </div>
+
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ total_barang_keluar }} Unit
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <!-- Riwayat Barang Keluar -->
+                    <div class="card shadow mb-4">
+
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                Riwayat Barang Keluar
+                            </h6>
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="table-responsive">
+
+                                <table class="table table-bordered" width="100%" cellspacing="0">
+
+                                    <thead>
+                                        <tr>
+                                            <th>No.</th>
+                                            <th>Tanggal</th>
+                                            <th>Kode Barang</th>
+                                            <th>Nama Barang</th>
+                                            <th>Jumlah</th>
+                                            <th>Keterangan</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+
+                                        {% for transaksi in transaksi_keluar|reverse %}
+                                        <tr>
+                                            <td>{{ loop.index }}</td>
+
+                                            <td>
+                                                {{ transaksi.tanggal.strftime('%d-%m-%Y %H:%M') }}
+                                            </td>
+
+                                            <td>{{ transaksi.kode }}</td>
+
+                                            <td>{{ transaksi.nama }}</td>
+
+                                            <td>
+                                                {{ transaksi.jumlah }}
+                                            </td>
+
+                                            <td>
+                                                {{ transaksi.keterangan or '-' }}
+                                            </td>
+                                        </tr>
+
+                                        {% else %}
+
+                                        <tr>
+                                            <td colspan="6" class="text-center">
+                                                Belum ada transaksi barang keluar.
+                                            </td>
+                                        </tr>
+
+                                        {% endfor %}
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script src="{{ url_for('static', filename='vendor/jquery/jquery.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='vendor/jquery-easing/jquery.easing.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/sb-admin-2.min.js') }}"></script>
+
+</body>
+
+</html>
